@@ -1,0 +1,37 @@
+\section{Evaluation}
+\textbf{Important:} scientific work should be reproducible! 
+When applicable, you are strongly encouraged to create a replication package that follows the open science policies as adopted by SIGSOFT (see \url{https://github.com/acmsigsoft/open-science-policies}).
+
+\medskip
+
+\lipsum[2-3]
+
+Figure \ref{fig:CodeJava} shows a Java code snippet example.
+
+\begin{figure}
+    \centering
+    \begin{lstlisting}[language=Java]
+        private void adjustRowHeights(Jtable table) {
+            for(int row = num; row < table.getRowCount(); row++) {
+                int rowHeight = table.getRowHeight();
+                for(int column = num; column < table.getColumnCount(); column++) {
+                    component comp = table.prepareenderer(table.getCellenderer(row, column), row, column);
+                    rowHeight = math.max(rowHeight, comp.getPreferredSize().height);
+                }
+                table.setRowHeight(row, rowHeight);
+            }
+        }
+    \end{lstlisting}
+    \caption{Java code snippet.}
+    \label{fig:CodeJava}
+\end{figure}
+
+
+Figure \ref{fig:CodePython} shows an example of a Python code snippet imported from a file.
+
+\begin{figure}
+    \centering
+    \lstinputlisting[language=Python]{Tables_and_code/code.py}
+    \caption{Python code snippet.}
+    \label{fig:CodePython}
+\end{figure}

@@ -1,0 +1,32 @@
+
+\section{Background} 
+\subsection{Subsection 1}
+\lipsum[10]
+\begin{enumerate}
+    \item Point 1
+    \item Point 2
+    \item Point 3
+\end{enumerate}
+\lipsum[1]
+
+Consider Table~\ref{tab:example} below.
+%% For tables, see:
+% - https://jdhao.github.io/2019/08/27/latex_table_with_booktabs/
+% - https://people.inf.ethz.ch/markusp/teaching/guides/guide-tables.pdf
+\begin{table}
+    \centering
+    \caption{Description}
+    \label{tab:example}
+    \begin{tabular}{@{}lllll@{}}
+        \toprule
+        \multirow{2}{*}[-1em]{Models} & \multicolumn{3}{c}{Metric 1} & Metric 2\\
+        \addlinespace[10pt]
+        \cmidrule(lr){2-4} \cmidrule(lr){5-5} \\
+        {} & precision & recall & F-score  & R@10 \\
+        \midrule
+        model 1 & 0.67  & 0.8 & 0.729  & 0.75 \\
+        model 2 & 0.8 & 0.9 & 0.847 & 0.85 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+

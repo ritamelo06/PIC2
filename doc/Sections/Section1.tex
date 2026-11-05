@@ -1,0 +1,52 @@
+
+\section{Introduction}
+
+For advice on how to write and structure a paper, see the following link (some of the content in this template is taken from this link):
+
+\url{https://cs.stanford.edu/people/widom/paper-writing.html?s=03#intro}
+
+\medskip
+
+Read and bookmark the page above. You are recommended to follow the ``Stanford InfoLab's patented five-point structure for Introductions''. Unless there's a good argument against it, the Introduction should consist of five paragraphs answering the following five questions:
+
+\begin{enumerate}
+\item What is the problem?
+\item Why is it interesting and important?
+\item Why is it hard? (E.g., why do naive approaches fail?)
+\item Why hasn't it been solved before? (Or, what's wrong with previous proposed solutions? How does mine differ?)
+\item What are the key components of my approach and results? Also include any specific limitations.
+\end{enumerate}
+
+\paragraph{\textbf{A few notes on the use of \LaTeX.}} 
+First, double quotes are done with \verb|``| and \verb|''|. For example, \verb|``double quotes''| yields ``double quotes''. Note that if you write \verb|"double quotes"|, you obtain "double quotes" (which doesn't look as nice).
+
+Citations are done with the \verb@\cite@ command \cite{Goodfellow:2014}. 
+Note that it is always preferable to be possible to read your text without the references. For example, sentences like the following should be avoided:
+
+\begin{quote}
+\sl
+Generative adversarial networks were first introduced in \cite{Goodfellow:2014}.
+\end{quote}
+Instead, one can write:
+\begin{quote}
+\sl
+Goodfellow et al. introduced and described Generative adversarial networks~\cite{Goodfellow:2014}.
+\end{quote}
+
+ 
+Bibliographic entries are placed in the file \textsf{Bibliography.bib}.
+This is another citation \cite{McDonagh:2011dp} and this is another one \cite{Feller:2011ys}.
+\textbf{Important:} in most cases, you do not need to create the bibliographic entry manually; instead, you can use a service like Google Scholar\footnote{Extracting bibtex entries from Google Scholar: \url{https://libguides.usask.ca/c.php?g=218034&p=1445751}}, which is recommended for you to find related work.
+
+For advice on creating professional and clean tables with \LaTeX, see:
+
+\url{https://texblog.org/2017/02/06/proper-tables-with-latex/}
+
+Table~\ref{tab:example} is an example.
+
+\subsection{Work Objectives}
+\lipsum[2] % remove this
+
+\subsection{Expected Contributions}
+\lipsum[2] % remove this
+

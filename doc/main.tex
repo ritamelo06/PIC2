@@ -1,0 +1,97 @@
+\documentclass[a4paper]{article}
+
+\input{Preamble_commands}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%
+% TITLE & NAME %
+%%%%%%%%%%%%%%%%
+% \selectlanguage{portuguese}  % <-- ACTION: UNCOMMENT for english or portuguese
+\selectlanguage{english}  % <-- ACTION: UNCOMMENT for english or portuguese
+\title{This is the Title of the Thesis and it can be a very Big Title covering More than One Line} % <-- ACTION: WRITE your project title here
+\author{Rita Cordeiro Dias de Melo} % <-- ACTION: WRITE your complete name here
+\istid{107294} % <-- ACTION: WRITE your student number  here (your student number, not the IST-ID)
+\email{rita.de.melo@tecnico.ulisboa.pt} % <-- ACTION: WRITE your e-mail here
+\advisors{John Doe, Jane Doa} % <-- ACTION: WRITE your advisor name here
+
+% To make the title
+\maketitle
+\thispagestyle{empty}
+
+%%%%%%%%%%%%
+% ABSTRACT %
+%%%%%%%%%%%%
+% To remove indentation before abstract
+\setlength{\abstitleskip}{-\absparindent}
+\begin{abstract}
+ \lipsum[2-4] % <--- ACTION: REMOVE THIS AND ADD YOUR ABSTRACT HERE
+\keywords{Keyword 1, Keyword 2, Keyword 3} % <--- ACTION: WRITE YOUR KEYWORDS HERE
+\clearpage
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%
+% TABLE OF CONTENTS %
+%%%%%%%%%%%%%%%%%%%%%
+\tableofcontents
+\thispagestyle{empty}
+\clearpage
+
+
+%% <-- ACTION: ADD/EDIT/REMOVE/COMMENT SECTIONS IF YOU NEED TO
+%%%%%%%%%%%%%%%%
+% INTRODUCTION %
+%%%%%%%%%%%%%%%%
+\input{Sections/Section1.tex}
+
+%%%%%%%%%%%%%%
+% Background %
+%%%%%%%%%%%%%%
+\input{Sections/Section2.tex}
+
+%%%%%%%%%%%%%%%%
+% Related work %
+%%%%%%%%%%%%%%%%
+\input{Sections/Section3.tex}
+
+%%%%%%%%%%%%
+% Solution %
+%%%%%%%%%%%%
+\input{Sections/Section4.tex}
+
+%%%%%%%%%%%%%%
+% Evaluation %
+%%%%%%%%%%%%%%
+\input{Sections/Section5.tex}
+
+%%%%%%%%%%%%%%%%%
+% Work Schedule %
+%%%%%%%%%%%%%%%%%
+\input{Sections/Section6.tex}
+
+%%%%%%%%%%%%%%%%
+% BIBLIOGRAPHY %
+%%%%%%%%%%%%%%%%
+\clearpage
+% add Bibliography to TOC
+\addcontentsline{toc}{section}{\refname}
+% The following command resets the 'emphasis' style for bibliography entries
+\normalem
+% Name of your BiBTeX file
+\bibliography{./Bibliography} % <-- ACTION: Put here your own filename or edit Bibliography.bib to add your references
+% The following command modifies the 'emphasis' style for bibliography entries
+\ULforem
+
+
+%%%%%%%%%%%%
+% APPENDIX %
+%%%%%%%%%%%%
+\clearpage % <-- ACTION: Comment the following blocks if you dont need appendixes
+\appendix
+\input{Sections/AppendixA.tex}
+
+%%%%%%%%%%%%%
+%    END    %
+%%%%%%%%%%%%%
+
+\end{document}
