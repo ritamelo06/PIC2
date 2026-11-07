@@ -1,13 +1,7 @@
 
 \section{Background} 
-\subsection{Subsection 1}
-\lipsum[10]
-\begin{enumerate}
-    \item Point 1
-    \item Point 2
-    \item Point 3
-\end{enumerate}
-\lipsum[1]
+\subsection{LEAN / SMT basics}
+TODO: LEAN / SMT basics
 
 Consider Table~\ref{tab:example} below.
 %% For tables, see:
@@ -29,4 +23,43 @@ Consider Table~\ref{tab:example} below.
         \bottomrule
     \end{tabular}
 \end{table}
+
+\subsection{How to Build an AI Agent}
+\label{subsec:build-agent}
+ 
+The paradigm of utilizing Large Language Models (LLMs) has shifted from single-pass, zero-shot generation towards the deployment of agentic systems. Anthropic distinguishes \textit{workflows}, where LLMs and tools are orchestrated through predefined code paths, from \textit{agents}, where LLMs dynamically direct their own processes and tool usage~\cite{anthropic2024building}. Since autonomy costs latency, money, and compounding errors, the simplest solution that works should be preferred, and complexity added only when it measurably helps~\cite{anthropic2024building,openai2025practical}. This section presents the construction of an agent in four steps.
+ 
+\subsubsection{Step 1: Define the Components}
+According to OpenAI's practical guide~\cite{openai2025practical}, an agent is built from three core components:
+\begin{enumerate}
+    \item \textbf{Model:} the LLM that reasons and makes decisions. Prototyping should start with the most capable model to set a baseline, and smaller models are then tested to reduce cost and latency.
+    \item \textbf{Tools:} external functions or APIs used to gather context (data tools) or to act on a system (action tools), ranging from web search to code execution or formal verifiers.
+    \item \textbf{Instructions:} explicit guidelines that define the agent's behaviour, split into small, unambiguous steps that also cover edge cases.
+\end{enumerate}
+ 
+\subsubsection{Step 2: Implement the Agent Loop}
+The model and its tools become an agent through a loop run by surrounding code, referred to in this work as the \textit{harness}. At each iteration, the harness sends the instructions and the conversation history to the model, executes any tool the model requests, and appends the result to the history~\cite{openai2025practical}. This provides the agent with ``ground truth'' from the environment such as tool results or code execution output to assess its progress~\cite{anthropic2024building}. The loop terminates when a final-output tool is called, the model answers without requesting a tool, an error occurs, or a maximum number of turns is reached~\cite{openai2025practical}. Building the loop directly on the LLM API is preferable to using a framework, as the latter's abstractions can hide prompts and responses, hindering debugging~\cite{anthropic2024building}.
+ 
+\subsubsection{Step 3: Add Guardrails}
+No single guardrail is sufficient, so they should be layered~\cite{openai2025practical}: relevance and safety classifiers, rules-based protections (blocklists, length limits, regular expressions), output validation, and risk ratings for tools that trigger checks or escalation. Human intervention should be planned for when failures exceed a threshold and before high-risk or irreversible actions, and agents should be tested extensively in sandboxed environments~\cite{anthropic2024building}. These checks are enforced by the harness, not left to the model's own judgement.
+ 
+\subsubsection{Step 4: Choose the Orchestration Pattern}
+A single agent should be the starting point, with multiple agents introduced only when prompts accumulate many conditional branches or tools overlap~\cite{openai2025practical}. When the steps are known in advance, the workflow patterns catalogued by Anthropic apply: prompt chaining, routing, parallelisation, orchestrator--workers, and evaluator--optimizer~\cite{anthropic2024building}.
+ 
+The last is the most relevant for this thesis. In the \textbf{evaluator--optimizer} workflow, one LLM call generates a response (the optimizer) while an evaluator provides feedback in a loop. This approach is particularly effective when clear evaluation criteria exist and iteration measurably improves the output. While in traditional applications the evaluator is often a human or another LLM, in the context of this thesis the evaluator is a \textit{TODO: double check this -> formal verifier (smt / lean)}. 
+ 
+\subsubsection{Prototype Architecture}
+\textcolor{blue}{TODO: CHECK PROTÓTIPO - SUJEITO A MUDANÇA (talvez fazer algo mais relacionado com o tema da tese em vez de um verificador de código de python)}
+
+To illustrate the practical implementation of this architecture, we developed a prototype following the four steps outlined above. The prototype uses the Python interpreter as a verifier to ground the LLM's output. The complete implementation is presented in Listing~\ref{lst:agent_code}.
+
+The architecture is straightforward: the LLM receives a natural language prompt and generates a Python script. Instead of blindly accepting the output, the agent acts as its own verifier by attempting to execute the generated code using Python's \texttt{exec()} function. If the execution succeeds, the agent terminates the loop. However, if an exception is raised, the exact traceback (the verifier's feedback) is captured and appended to the LLM's prompt, prompting it to fix the bug and try again. 
+
+This prototype demonstrates the foundational mechanism that will be scaled in this thesis. While this simple example uses the Python interpreter as a verifier, the same architectural pattern will be applied to more complex domains. In the subsequent phases of the project, the Python interpreter will be replaced by formal verification tools—such as an SMT solver (e.g., CVC5) for configuration synthesis, or the Lean theorem prover for code verification. The agent will generate formal proofs or logical constraints, and the verifier will provide mathematically rigorous feedback, ensuring that the final outputs are not only plausible but formally correct.
+
+% Note: The code snippet will be inserted here.
+% \begin{figure}[H]
+%     \centering
+%     \lstinputlisting[language=Python, caption={Prototype of an Evaluator-Optimizer agent using the Python interpreter as a verifier.}, label={lst:agent_code}]{agent/agent.py}
+% \end{figure}
 
