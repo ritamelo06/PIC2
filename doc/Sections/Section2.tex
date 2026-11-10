@@ -27,7 +27,7 @@ Consider Table~\ref{tab:example} below.
 \subsection{How to Build an AI Agent}
 \label{subsec:build-agent}
  
-The paradigm of utilizing Large Language Models (LLMs) has shifted from single-pass, zero-shot generation towards the deployment of agentic systems. Anthropic distinguishes \textit{workflows}, where LLMs and tools are orchestrated through predefined code paths, from \textit{agents}, where LLMs dynamically direct their own processes and tool usage~\cite{anthropic2024building}. Since autonomy costs latency, money, and compounding errors, the simplest solution that works should be preferred, and complexity added only when it measurably helps~\cite{anthropic2024building,openai2025practical}. This section presents the construction of an agent in four steps.
+The paradigm of utilizing Large Language Models (LLMs) has shifted from single-pass, zero-shot generation towards the deployment of agentic systems. Anthropic distinguishes workflows, where LLMs and tools are orchestrated through predefined code paths, from agents, where LLMs dynamically direct their own processes and tool usage~\cite{anthropic2024building}. Since greater autonomy introduces additional latency, costs, and the risk of compounding errors, systems should start with the simplest approach and increase complexity only when it demonstrably improves performance~\cite{anthropic2024building,openai2025practical}. This section presents the construction of an agent in four steps.
  
 \subsubsection{Step 1: Define the Components}
 According to OpenAI's practical guide~\cite{openai2025practical}, an agent is built from three core components:
@@ -38,28 +38,45 @@ According to OpenAI's practical guide~\cite{openai2025practical}, an agent is bu
 \end{enumerate}
  
 \subsubsection{Step 2: Implement the Agent Loop}
-The model and its tools become an agent through a loop run by surrounding code, referred to in this work as the \textit{harness}. At each iteration, the harness sends the instructions and the conversation history to the model, executes any tool the model requests, and appends the result to the history~\cite{openai2025practical}. This provides the agent with ``ground truth'' from the environment such as tool results or code execution output to assess its progress~\cite{anthropic2024building}. The loop terminates when a final-output tool is called, the model answers without requesting a tool, an error occurs, or a maximum number of turns is reached~\cite{openai2025practical}. Building the loop directly on the LLM API is preferable to using a framework, as the latter's abstractions can hide prompts and responses, hindering debugging~\cite{anthropic2024building}.
+The model and its tools become an agent through a loop run by surrounding code, referred to in this work as the harness. At each iteration, the harness sends the instructions and the conversation history to the model, executes any tool the model requests, and appends the result to the history~\cite{openai2025practical}. This provides the agent with ``ground truth'' from the environment such as tool results or code execution output to assess its progress~\cite{anthropic2024building}. The loop terminates when a final-output tool is called, the model answers without requesting a tool, an error occurs, or a maximum number of turns is reached~\cite{openai2025practical}. Building the loop directly on the LLM API is preferable to using a framework, as the extra abstraction layers can obscure prompts and responses, complicating debugging~\cite{anthropic2024building}.
  
 \subsubsection{Step 3: Add Guardrails}
-No single guardrail is sufficient, so they should be layered~\cite{openai2025practical}: relevance and safety classifiers, rules-based protections (blocklists, length limits, regular expressions), output validation, and risk ratings for tools that trigger checks or escalation. Human intervention should be planned for when failures exceed a threshold and before high-risk or irreversible actions, and agents should be tested extensively in sandboxed environments~\cite{anthropic2024building}. These checks are enforced by the harness, not left to the model's own judgement.
+Since no single guardrail is sufficient, they should be layered~\cite{openai2025practical}, combining relevance and safety classifiers, rules-based protections (such as blocklists, length limits, and regular expressions), output validation, and risk ratings for tools that trigger checks or escalation. Human intervention should be planned for when failures exceed a threshold and before high-risk or irreversible actions, and agents should be tested extensively in sandboxed environments~\cite{anthropic2024building}. These checks are enforced by the harness, not left to the model's own judgement.
  
 \subsubsection{Step 4: Choose the Orchestration Pattern}
-A single agent should be the starting point, with multiple agents introduced only when prompts accumulate many conditional branches or tools overlap~\cite{openai2025practical}. When the steps are known in advance, the workflow patterns catalogued by Anthropic apply: prompt chaining, routing, parallelisation, orchestrator--workers, and evaluator--optimizer~\cite{anthropic2024building}.
- 
-The last is the most relevant for this thesis. In the \textbf{evaluator--optimizer} workflow, one LLM call generates a response (the optimizer) while an evaluator provides feedback in a loop. This approach is particularly effective when clear evaluation criteria exist and iteration measurably improves the output. While in traditional applications the evaluator is often a human or another LLM, in the context of this thesis the evaluator is a \textit{TODO: double check this -> formal verifier (smt / lean)}. 
+A single agent should be the starting point, with multiple agents introduced only when prompts accumulate many conditional branches or tools overlap~\cite{openai2025practical}. For tasks that can be decomposed into predictable steps, Anthropic provides a catalogue of predefined workflow patterns, including prompt chaining, routing, parallelisation, orchestrator--workers, and evaluator--optimizer~\cite{anthropic2024building}. The latter is the most relevant for this work. In the \textbf{evaluator--optimizer} workflow, one LLM call generates a response (the optimizer) while an evaluator provides feedback in a loop. This approach is particularly effective when clear evaluation criteria exist and iteration measurably improves the output.
  
 \subsubsection{Prototype Architecture}
-\textcolor{blue}{TODO: CHECK PROTÓTIPO - SUJEITO A MUDANÇA (talvez fazer algo mais relacionado com o tema da tese em vez de um verificador de código de python)}
+\label{subsubsec:prototype}
 
-To illustrate the practical implementation of this architecture, we developed a prototype following the four steps outlined above. The prototype uses the Python interpreter as a verifier to ground the LLM's output. The complete implementation is presented in Listing~\ref{lst:agent_code}.
+To make the four steps concrete, a minimal agent was implemented in Python (Listing~\ref{lst:agent_code}). Given a natural-language request, it generates a Python script and checks it by executing it. Following Step~2, it calls a chat-completion API directly (any OpenAI-compatible endpoint) instead of using a framework.
 
-The architecture is straightforward: the LLM receives a natural language prompt and generates a Python script. Instead of blindly accepting the output, the agent acts as its own verifier by attempting to execute the generated code using Python's \texttt{exec()} function. If the execution succeeds, the agent terminates the loop. However, if an exception is raised, the exact traceback (the verifier's feedback) is captured and appended to the LLM's prompt, prompting it to fix the bug and try again. 
+\paragraph{Components (Step 1).} The model is the LLM behind that endpoint, called with temperature 0. The instructions are a system prompt requiring raw, self-contained code with \texttt{assert} statements for testing. The tool is the Python interpreter, which acts as the verifier.
 
-This prototype demonstrates the foundational mechanism that will be scaled in this thesis. While this simple example uses the Python interpreter as a verifier, the same architectural pattern will be applied to more complex domains. In the subsequent phases of the project, the Python interpreter will be replaced by formal verification tools—such as an SMT solver (e.g., CVC5) for configuration synthesis, or the Lean theorem prover for code verification. The agent will generate formal proofs or logical constraints, and the verifier will provide mathematically rigorous feedback, ensuring that the final outputs are not only plausible but formally correct.
+\paragraph{Loop (Step 2).} At each iteration, the harness queries the model and executes the returned code. On an exception, it appends the code and the full traceback (the ground truth from the environment) to the history, asking for a corrected script. The loop exits when the code runs without errors or after max\_iterations.
 
-% Note: The code snippet will be inserted here.
-% \begin{figure}[H]
-%     \centering
-%     \lstinputlisting[language=Python, caption={Prototype of an Evaluator-Optimizer agent using the Python interpreter as a verifier.}, label={lst:agent_code}]{agent/agent.py}
-% \end{figure}
+\paragraph{Guardrails (Step 3).} Two lightweight guardrails are implemented in this prototype: a hard bound on the number of iterations (limiting API costs and preventing infinite loops) and the requirement for the model to generate assert statements as a basic correctness check. As a minimal viable prototype, the code is executed directly via exec() within the same process, deliberately omitting a sandbox or explicit timeout. While this is acceptable for a controlled development environment, a production-grade harness would layer these protections using isolated execution environment
 
+\paragraph{Pattern (Step 4).} A single LLM is checked by a verifier in a loop fixed by the harness. This is an evaluator--optimizer workflow rather than an autonomous agent, since the harness invokes the verifier instead of the model requesting it. Its main limitation is that the assert statements are written by the same LLM that is being checked, so correctness is only as strong as the model's own tests. Replacing the interpreter with an external formal verifier removes this limitation without changing the loop.
+
+\begin{lstlisting}[language=Python, caption={Simplified excerpt of the prototype.}, label={lst:agent_code}]
+SYSTEM_PROMPT = """You are an expert Python developer. Write a
+self-contained script that solves the request. Output ONLY raw
+Python code, with assert statements at the end if testing is needed."""
+
+def run_agent(task, max_iterations=3):             # Step 3: bounded loop
+    messages = [{"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": task}]
+    for _ in range(max_iterations):                # Step 2: agent loop
+        response = client.chat.completions.create(
+            model=MODEL, messages=messages, temperature=0.0)
+        code = response.choices[0].message.content.strip()
+        try:
+            exec(code, {})                  # verifier: Python interpreter
+            break                           # success: exit condition
+        except Exception:
+            error = traceback.format_exc()  # ground truth for the model
+            messages.append({"role": "assistant", "content": code})
+            messages.append({"role": "user", "content":
+                f"Your code produced this error:\n{error}\nFix it."})
+\end{lstlisting}

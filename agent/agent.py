@@ -56,6 +56,6 @@ def run_agent(task_description: str, max_iterations: int = 3):
 
 if __name__ == "__main__":
 
-    #task = "Write a function `add_numbers(a, b)` that returns the sum of a and b. Include a test case: assert add_numbers(2, 3) == 5"
+    # should fail since numpy is not installed in the env
     task = "Write a Python script that imports the `numpy` library and creates a 2x2 array of ones. Then, include an assert statement to check the sum of all elements is 4."
     run_agent(task)
