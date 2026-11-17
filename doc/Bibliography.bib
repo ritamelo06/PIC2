@@ -1,35 +1,98 @@
 %% This BibTeX bibliography file was created using BibDesk.
 %% http://bibdesk.sourceforge.net/
  
-%% EXAMPLES
-@inproceedings{McDonagh:2011dp,
-	Author = {McDonagh, P. and Vallati, C. and Pande, A. and Mohapatra, P. and Perry, P. and Mingozzi, E.},
-	Booktitle = {Wireless Personal Multimedia Communications (WPMC), 2011 14th International Symposium on},
-	Issn = {1347-6890},
-	Month = {Oct},
-	Pages = {1-5},
-	Title = {Investigation of scalable video delivery using H.264 SVC on an LTE network},
-	Year = {2011}
- }
-
-@inproceedings{Feller:2011ys,
-	Author = {Feller, C. and Wuenschmann, J. and Roll, T. and Rothermel, A.},
-	Booktitle = {Consumer Electronics - Berlin (ICCE-Berlin), 2011 IEEE International Conference on},
-	Doi = {10.1109/ICCE-Berlin.2011.6031852},
-	Pages = {57-61},
-	Title = {{The VP8 video codec - overview and comparison to H.264/AVC}},
-	Year = {2011}
- }
-
- @inproceedings{Goodfellow:2014, 
-    Author = {Goodfellow, Ian J. and Pouget-Abadie, Jean and Mirza, Mehdi and Xu, Bing and Warde-Farley, David and Ozair, Sherjil and Courville, Aaron and Bengio, Yoshua}, 
-    Booktitle = {Proceedings of the 27th International Conference on Neural Information Processing Systems - Volume 2}, 
-    Pages = {2672–2680}, 
-    Title = {Generative Adversarial Nets}, 
-    Year = {2014}
+% MY REFERENCES START HERE
+% references for Section 2.1 SMT
+@inproceedings{cook1971complexity,
+  author    = {Cook, Stephen A.},
+  title     = {The Complexity of Theorem-Proving Procedures},
+  booktitle = {Proceedings of the Third Annual ACM Symposium on Theory of Computing (STOC '71)},
+  pages     = {151--158},
+  publisher = {ACM},
+  year      = {1971},
+  doi       = {10.1145/800157.805047}
 }
 
-% MY REFERENCES START HERE
+@incollection{barrett2018smt,
+  author    = {Barrett, Clark and Tinelli, Cesare},
+  title     = {Satisfiability Modulo Theories},
+  booktitle = {Handbook of Model Checking},
+  editor    = {Clarke, Edmund M. and Henzinger, Thomas A. and Veith, Helmut and Bloem, Roderick},
+  publisher = {Springer International Publishing},
+  year      = {2018},
+  pages     = {305--343},
+  doi       = {10.1007/978-3-319-10575-8_11}
+}
+
+@incollection{barrett2021smt,
+  author    = {Barrett, Clark and Sebastiani, Roberto and Seshia, Sanjit A. and Tinelli, Cesare},
+  title     = {Satisfiability Modulo Theories},
+  booktitle = {Handbook of Satisfiability},
+  edition   = {2nd},
+  editor    = {Biere, Armin and Heule, Marijn and van Maaren, Hans and Walsh, Toby},
+  series    = {Frontiers in Artificial Intelligence and Applications},
+  volume    = {336},
+  publisher = {IOS Press},
+  year      = {2021},
+  pages     = {825--885}
+}
+
+@article{demoura2011smt,
+  author  = {de Moura, Leonardo and Bj{\o}rner, Nikolaj},
+  title   = {Satisfiability Modulo Theories: Introduction and Applications},
+  journal = {Communications of the ACM},
+  volume  = {54},
+  number  = {9},
+  pages   = {69--77},
+  year    = {2011},
+  doi     = {10.1145/1995376.1995394}
+}
+
+@article{nieuwenhuis2006dpllt,
+  author  = {Nieuwenhuis, Robert and Oliveras, Albert and Tinelli, Cesare},
+  title   = {Solving {SAT} and {SAT} Modulo Theories: From an Abstract {Davis--Putnam--Logemann--Loveland} Procedure to {DPLL(T)}},
+  journal = {Journal of the ACM},
+  volume  = {53},
+  number  = {6},
+  pages   = {937--977},
+  year    = {2006}
+}
+
+@misc{barrett2026smtlib,
+  author       = {Barrett, Clark and Fontaine, Pascal and Tinelli, Cesare},
+  title        = {The {SMT-LIB} Standard: Version 2.7},
+  year         = {2026},
+  note         = {Revision of 2026-09-09},
+  howpublished = {\url{https://smt-lib.org/papers/smt-lib-reference-v2.7-r2026-09-09.pdf}}
+}
+
+@inproceedings{barbosa2022cvc5,
+  author    = {Barbosa, Haniel and Barrett, Clark W. and Brain, Martin and Kremer, Gereon and Lachnitt, Hanna and Mann, Makai and Mohamed, Abdalrhman and Mohamed, Mudathir and Niemetz, Aina and N{\"o}tzli, Andres and Ozdemir, Alex and Preiner, Mathias and Reynolds, Andrew and Sheng, Ying and Tinelli, Cesare and Zohar, Yoni},
+  title     = {{cvc5}: A Versatile and Industrial-Strength {SMT} Solver},
+  booktitle = {Tools and Algorithms for the Construction and Analysis of Systems (TACAS 2022)},
+  editor    = {Fisman, Dana and Rosu, Grigore},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {13243},
+  pages     = {415--442},
+  publisher = {Springer},
+  year      = {2022},
+  doi       = {10.1007/978-3-030-99524-9_24}
+}
+
+@inproceedings{barrett2024tutorial,
+  author    = {Barrett, Clark and Tinelli, Cesare and Barbosa, Haniel and Niemetz, Aina and Preiner, Mathias and Reynolds, Andrew and Zohar, Yoni},
+  title     = {Satisfiability Modulo Theories: A Beginner's Tutorial},
+  booktitle = {Formal Methods (FM 2024), Part II},
+  editor    = {Platzer, Andr{\'e} and Rozier, Kristin Yvonne and Pradella, Matteo and Rossi, Matteo},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {14934},
+  pages     = {571--596},
+  publisher = {Springer Nature Switzerland},
+  year      = {2024},
+  doi       = {10.1007/978-3-031-71177-0_31}
+}
+
+% references for Section 2.2 HOW TO CODE AN AI AGENTE
 @misc{anthropic2024building,
 	Author = {{Anthropic}},
 	Title = {Building effective agents},

@@ -1,28 +1,81 @@
 
 \section{Background} 
-\subsection{LEAN / SMT basics}
-TODO: LEAN / SMT basics
+\subsection{Satisfiability Modulo Theories}
+\label{subsec:smt-basics}
 
-Consider Table~\ref{tab:example} below.
-%% For tables, see:
-% - https://jdhao.github.io/2019/08/27/latex_table_with_booktabs/
-% - https://people.inf.ethz.ch/markusp/teaching/guides/guide-tables.pdf
-\begin{table}
-    \centering
-    \caption{Description}
-    \label{tab:example}
-    \begin{tabular}{@{}lllll@{}}
-        \toprule
-        \multirow{2}{*}[-1em]{Models} & \multicolumn{3}{c}{Metric 1} & Metric 2\\
-        \addlinespace[10pt]
-        \cmidrule(lr){2-4} \cmidrule(lr){5-5} \\
-        {} & precision & recall & F-score  & R@10 \\
-        \midrule
-        model 1 & 0.67  & 0.8 & 0.729  & 0.75 \\
-        model 2 & 0.8 & 0.9 & 0.847 & 0.85 \\
-        \bottomrule
-    \end{tabular}
+\subsubsection{From SAT to SMT}
+The Boolean satisfiability problem (SAT) asks whether the variables of a propositional formula can be assigned \texttt{true} or \texttt{false} so that the formula evaluates to \texttt{true}. Although SAT is NP-complete~\cite{cook1971complexity}, modern SAT solvers handle many large practical instances efficiently and form the core of Satisfiability Modulo Theories (SMT) solvers~\cite{demoura2011smt}. Propositional logic is, however, a poor fit for constraints over integers, bit-vectors, or strings, which are the building blocks of many verification problems.
+
+SMT addresses this limitation by checking the satisfiability of first-order formulas whose symbols are interpreted according to a background theory~\cite{barrett2018smt}. Deduction in first-order logic is undecidable in general, whereas SMT builds on a collection of decidable theories and, for some undecidable problems, on heuristics~\cite{barrett2024tutorial}. An SMT solver can thus be seen as a general-purpose problem-solving tool. Given a set of constraints, it either finds a solution that satisfies all of them or reports that none exists~\cite{barrett2024tutorial}.
+
+\subsubsection{Formal Foundations}
+SMT is formalised in many-sorted first-order logic with equality~\cite{barrett2024tutorial}. A problem is specified over a signature, which declares sort symbols (such as \texttt{Int} and \texttt{Bool}), function symbols (such as $+$), and relation symbols (such as $<$). An interpretation assigns a non-empty domain to each sort and a concrete meaning to each symbol. If an interpretation makes a formula evaluate to true, it is a model of that formula.
+
+A theory fixes the meaning of its signature symbols (for instance, defining $+$ and $<$ according to standard arithmetic) while leaving other symbols uninterpreted. A formula is satisfiable in a theory if there exists an interpretation of that theory that satisfies it. It is valid if every such interpretation satisfies it, which holds exactly when its negation is unsatisfiable, and a set of premises entails a formula if the premises together with the negation of the formula are unsatisfiable~\cite{barrett2024tutorial}. For example, in integer arithmetic, the formula $x > 100 \wedge x < 200$ is satisfiable, since any integer between 101 and 199 is a model, whereas $x > 100 \wedge x < 10$ is unsatisfiable. Likewise, $x > 100$ entails $x > 50$, because $x > 100 \wedge \neg(x > 50)$ is unsatisfiable.
+
+\subsubsection{Theories and Logics}
+Solvers support a collection of theories, each with its own decision procedure. Table~\ref{tab:smt-theories} lists some of the theories covered by the cvc5 tutorial~\cite{barrett2024tutorial}. In SMT-LIB, a logic combines a theory, or a combination of theories, with syntactic restrictions. Logic names are built from the theories they include, for instance, the prefix \texttt{QF\_} denotes the quantifier-free fragment, and dropping it allows quantifiers. Theories can be combined, as in \texttt{QF\_AUFDTBVLRA}, which mixes arrays, uninterpreted functions, datatypes, bit-vectors, and linear real arithmetic. However, expressiveness has a cost, and some fragments, such as nonlinear integer arithmetic, are undecidable, so a solver may fail to answer.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llp{7.6cm}@{}}
+\toprule
+\textbf{Theory} & \textbf{SMT-LIB logics} & \textbf{Constraints} \\
+\midrule
+Uninterpreted functions & \texttt{QF\_UF} & Booleans, equality, uninterpreted sorts and functions \\
+Linear arithmetic & \texttt{QF\_LIA}, \texttt{QF\_LRA} & Linear constraints over integers or reals \\
+Nonlinear arithmetic & \texttt{QF\_NRA}, \texttt{QF\_NIA} & Polynomial constraints (\texttt{QF\_NIA} is undecidable) \\
+Arrays & \texttt{QF\_AX} & Maps with \texttt{select} and \texttt{store} \\
+Bit-vectors & \texttt{QF\_BV} & Fixed-size machine integers \\
+Datatypes & \texttt{QF\_DT} & Records, lists, and trees \\
+Strings & \texttt{QF\_S}, \texttt{QF\_SLIA} & Variable-length strings \\
+Floating-point & \texttt{QF\_FP} & IEEE-754 numbers \\
+\bottomrule
+\end{tabular}
+\caption{Some SMT theories and the corresponding SMT-LIB logics.}
+\label{tab:smt-theories}
 \end{table}
+
+\subsubsection{The SMT-LIB Language}
+Solvers such as cvc5~\cite{barbosa2022cvc5} read problems written in SMT-LIB, a standard input language~\cite{barrett2026smtlib} with a Lisp-like syntax. Listing~\ref{lst:smt-sat} shows a simple problem in linear integer arithmetic. The command \texttt{set-logic} selects the logic (here \texttt{QF\_LIA}), \texttt{set-option} enables model generation, \texttt{declare-const} introduces the integer constant \texttt{x}, \texttt{assert} adds constraints, and \texttt{check-sat} invokes the solver. In SMT-LIB terminology, \texttt{x} is an uninterpreted constant, whose value is chosen by the solver, and not a variable, which is reserved for symbols bound by a quantifier~\cite{barrett2024tutorial}. Since some integer between 101 and 199 satisfies both constraints, the solver answers \texttt{sat} and \texttt{get-model} returns such a value for \texttt{x}. If the second constraint were \texttt{(< x 10)}, the answer would be \texttt{unsat} and no model would exist. Besides SMT-LIB scripts, cvc5 can also be used programmatically through a Python API, which exposes the same operations~\cite{barbosa2022cvc5}. Listing~\ref{lst:smt-core} shows an example.
+
+\begin{lstlisting}[language=Lisp, caption={A satisfiable SMT-LIB script for quantifier-free linear integer arithmetic.}, label={lst:smt-sat}]
+(set-logic QF_LIA)
+(set-option :produce-models true)
+(declare-const x Int)
+(assert (> x 100))
+(assert (< x 200))
+(check-sat)        ; Output: sat
+(get-model)
+\end{lstlisting}
+
+\subsubsection{Architecture of Modern Solvers}
+Modern SMT solvers combine a core SAT engine with specialised theory solvers, an approach formalised by the DPLL(T) architecture~\cite{nieuwenhuis2006dpllt,barrett2018smt}. The solver translates the formula into a Boolean skeleton and delegates the purely logical reasoning to the SAT engine, while the theory solvers validate the mathematical consistency of the constraints. 
+
+When the SAT engine proposes a combination of constraints that violates the underlying theory, for example, asserting that a variable is simultaneously greater than 100 and less than 10, the theory solver detects the conflict and feeds this information back to the SAT engine. This cooperation allows the solver to efficiently navigate the search space. 
+The conflicts found by the theory solvers are also the basis for the unsat cores described next.
+
+\subsubsection{Solver Outputs: Models, Unsat Cores, and Unknown}
+The main result of a query is \texttt{sat} or \texttt{unsat}, but solvers can provide more information in each case~\cite{barrett2024tutorial}. After a \texttt{sat} answer, \texttt{get-model} returns a value for every declared constant, which requires the option \texttt{:produce-models}, and \texttt{get-value} returns the value of a specific term.
+
+After an \texttt{unsat} answer, the solver can report an unsatisfiable core (unsat core), a subset of the assertions that is already unsatisfiable on its own~\cite{barrett2018smt,barrett2024tutorial}. In SMT-LIB scripts it is obtained with the command \texttt{get-unsat-core}, and in the Python API of cvc5 with the method \texttt{unsat\_core()}, as in Listing~\ref{lst:smt-core}. A core is not guaranteed to be minimal, although solvers generally try to keep it small, and a problem may admit several cores. A core identifies which assertions are in conflict, but not how to resolve the conflict. Some solvers, including cvc5, can also produce proofs of unsatisfiability, which are structured arguments showing how an inconsistency follows from the assertions and can serve as certificates of the answer~\cite{barrett2024tutorial}.
+
+\begin{lstlisting}[language=Python, caption={Retrieving an unsat core with the cvc5 Python API.}, label={lst:smt-core}]
+from cvc5.pythonic import *
+
+s = SolverFor('QF_LIA')
+s.set("produce-unsat-cores", "true")
+
+x = Int('x')
+s.add(x > 100)
+s.add(x < 10)
+
+print(s.check())        # Output: unsat
+print(s.unsat_core())   # Output: [x > 100, x < 10]
+\end{lstlisting}
+
+Finally, a solver may answer \texttt{unknown} when it cannot solve the problem, for instance because the procedure is incomplete for the fragment at hand, the problem contains quantifiers, or a resource limit was exceeded. In SMT-LIB, the command \texttt{(get-info :reason-unknown)} requests the reason~\cite{barrett2024tutorial}.
+
 
 \subsection{How to Build an AI Agent}
 \label{subsec:build-agent}
